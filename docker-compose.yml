@@ -1,0 +1,12 @@
+services:
+  regression:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/usr/workspace
+    command: /bin/sh -c "pytest -v --alluredir=allure-results"
+    working_dir: /usr/workspace
+    environment:
+      - LOGIN=${LOGIN}
+      - PASSWORD=${PASSWORD}

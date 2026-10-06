@@ -1,0 +1,12 @@
+*.iml
+.env
+.idea
+.pytest_cache
+report
+allure-results
+allure-report
+gh-pages
+__pycache__/
+*.pyc
+.venv/
+report/
