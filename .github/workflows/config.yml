@@ -1,14 +1,24 @@
 name: UI Tests
 
-on: [push]
+on:
+  push:
+    branches: [main]
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
   ui-tests:
     runs-on: ubuntu-latest
-
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v5
 
@@ -40,12 +50,19 @@ jobs:
           mkdir -p allure-report/history
           cp -r gh-pages/history/* allure-report/history/ 2>/dev/null || echo "No history found"
 
+      - name: Setup Pages
+        if: always()
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        if: always()
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: allure-report
+          # только один артефакт с именем github-pages - фикс ошибки "Multiple artifacts named github-pages were unexpectedly found. Artifact count is 2"
+          name: github-pages
+
       - name: Deploy to GitHub Pages
         if: always()
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          branch: gh-pages
-          folder: allure-report
-          clean: false
-          single-commit: true
+        id: deployment
+        uses: actions/deploy-pages@v4
