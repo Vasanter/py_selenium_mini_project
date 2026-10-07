@@ -18,7 +18,6 @@ def driver(request):
     options.add_argument("--disable-infobars")
     options.add_argument("--disable-dev-tools")
     options.add_argument("--ignore-certificate-errors")
-    # фикс для медленного CI: увеличиваем таймауты страницы
     driver = webdriver.Chrome(options=options, service=Service())
     driver.set_page_load_timeout(30)
     driver.implicitly_wait(0)

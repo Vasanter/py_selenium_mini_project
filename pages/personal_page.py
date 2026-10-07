@@ -8,7 +8,6 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 class PersonalPage(BasePage):
-
     PAGE_URL = Links.PERSONAL_PAGE
 
     FIRST_NAME_FIELD = ("xpath", "//input[@name='firstName']")
@@ -21,9 +20,7 @@ class PersonalPage(BasePage):
             # Ждём пока поле заполнится данными с сервера (Vue подгружает асинхронно)
             self.wait.until(lambda d: d.find_element(*self.FIRST_NAME_FIELD).get_attribute("value") != "")
             first_name_field = self.wait.until(EC.element_to_be_clickable(self.FIRST_NAME_FIELD))
-            # Кроссплатформенное выделение всего текста: COMMAND на Mac, CONTROL на Win/Linux
             select_all_key = Keys.COMMAND if platform.system() == "Darwin" else Keys.CONTROL
-            # Пробуем несколько способов очистки, чтобы работать в headless Linux/Windows
             try:
                 first_name_field.send_keys(select_all_key, "a")
             except Exception:
@@ -33,7 +30,8 @@ class PersonalPage(BasePage):
             if first_name_field.get_attribute("value") != "":
                 self.driver.execute_script("arguments[0].value = '';", first_name_field)
                 # Триггерим input событие для Vue
-                self.driver.execute_script("arguments[0].dispatchEvent(new Event('input', {bubbles: true}));", first_name_field)
+                self.driver.execute_script("arguments[0].dispatchEvent(new Event('input', {bubbles: true}));",
+                                           first_name_field)
             first_name_field.send_keys(new_name)
             self.name = new_name
 
@@ -48,6 +46,5 @@ class PersonalPage(BasePage):
         self.wait.until(EC.visibility_of_element_located(self.FIRST_NAME_FIELD))
         self.wait.until(EC.text_to_be_present_in_element_value(self.FIRST_NAME_FIELD, self.name))
 
-    # Для обратной совместимости со старым названием (опечатка)
     def is_changes_saves(self):
         return self.is_changes_saved()
